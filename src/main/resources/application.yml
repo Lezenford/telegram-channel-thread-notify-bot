@@ -1,0 +1,28 @@
+spring:
+  flyway:
+    enabled: true
+  datasource:
+    url: jdbc:h2:file:./thread-notify;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1
+    password: ''
+    driver-class-name: org.h2.Driver
+    username: sa
+  profiles:
+    active: prod
+
+management:
+  endpoints:
+    enabled-by-default: false
+
+#logging
+logging:
+  level:
+    root: INFO
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ./logs/application.log
+telegram:
+  type:
+  token:
+  webhook:
+    url:
