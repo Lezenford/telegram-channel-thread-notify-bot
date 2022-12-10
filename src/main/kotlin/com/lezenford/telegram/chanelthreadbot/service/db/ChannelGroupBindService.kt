@@ -19,7 +19,7 @@ class ChannelGroupBindService(
 ) : TransactionService() {
 
     suspend fun findAllChannels(): Flow<Long> {
-        return call { channelGroupBindRepository.findAll() }.asFlow().map { it.id }
+        return call { channelGroupBindRepository.findAll() }.asFlow().map { it.channelId }
     }
 
     @Cacheable(value = [CacheConfiguration.CHANNEL_GROUP_CACHE], key = "T(java.lang.Long).toString(#channelId)")

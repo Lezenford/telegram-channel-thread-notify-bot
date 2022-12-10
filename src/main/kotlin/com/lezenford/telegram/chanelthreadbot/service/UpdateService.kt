@@ -12,13 +12,12 @@ import com.lezenford.telegram.chanelthreadbot.telegram.BotSender
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.springframework.cache.CacheManager
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.telegram.telegrambots.meta.api.methods.CopyMessage
@@ -42,8 +41,7 @@ class UpdateService(
     private val userHistoryService: UserHistoryService,
     private val channelTopicService: ChannelTopicService,
     private val commandService: CommandService,
-    private val botSender: BotSender,
-    private val caceManager: CacheManager
+    private val botSender: BotSender
 ) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default
 
@@ -99,8 +97,8 @@ class UpdateService(
     private suspend fun receiveThreadMessage(message: Message) {
         message.context()?.also { (channelId, topicId) ->
             channelAvailableUsersService.listChannelAvailableUsers(channelId)
-                .filterNot { it.userId == message.from.id }.onEmpty { updateAvailableUsersByChannelId(channelId) }
-                .collect {}
+                .filter { it.userId == message.from.id }.onEmpty { updateAvailableUsersByChannelId(channelId) }
+                .collect()
 
             topicUsersBindService.findUsersByChannelAndTopic(channelId, topicId).onEach {
                 sendNotification(it, message)
@@ -134,6 +132,7 @@ class UpdateService(
                                 .chatId(userId)
                                 .messageId(messageId)
                                 .text(message.replayText())
+                                .parseMode("MarkdownV2")
                                 .build()
 
                             message.caption != null -> EditMessageCaption.builder().chatId(userId)
@@ -226,7 +225,7 @@ class UpdateService(
         runBlocking(coroutineContext) {
             channelGroupBindService.findAllChannels().onEach {
                 updateAvailableUsersByChannelId(it)
-            }
+            }.collect()
         }
     }
 
@@ -280,9 +279,9 @@ class UpdateService(
 
     private fun Message.replayText(): String {
         return """
-            __from ${from.username()}__
-            ${text?.escape() ?: ""}
-            """.trimIndent()
+            |__from ${from.username()}__
+            |${text?.escape() ?: ""}
+            """.trimMargin()
     }
 
     private fun String.escape(): String = this.map { if (it.code in 1..125) "\\$it" else it }.joinToString("")

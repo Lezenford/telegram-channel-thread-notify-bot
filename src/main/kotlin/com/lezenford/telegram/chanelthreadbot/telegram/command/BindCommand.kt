@@ -46,9 +46,9 @@ class BindCommand(
             }
 
             update.hasEditedMessage() || update.hasMessage() -> {
-                val message = update.message ?: update.editedMessage
+                val message = update.message ?: update.editedMessage ?: return
                 val messageKey = message.text.split(" ").last()
-                val channelId = message.senderChat.id
+                val channelId = message.senderChat?.id ?: return
                 channelGroupBindService.findInvitation(channelId)?.also { (messageId, key) ->
                     if (key == messageKey && message.forwardFromMessageId == messageId) {
                         channelGroupBindService.bindChannelAndGroup(channelId, message.chatId)

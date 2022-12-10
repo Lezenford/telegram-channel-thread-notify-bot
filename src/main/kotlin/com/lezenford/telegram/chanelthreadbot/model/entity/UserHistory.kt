@@ -13,8 +13,14 @@ data class UserHistory(
     @Column(name = "channel_id")
     var channelId: Long = 0,
 
+    @Column(name = "unread_messages_count")
+    var unreadMessageCount: Int = 0,
+
     @Column(name = "topic_id")
     var topicId: Int = 0,
+
+    @Column(name = "topic_notification_message_id")
+    var topicNotificationMessageId: Int = 0,
 
     @Column(name = "first_notification_message_id")
     var firstNotificationMessageId: Int? = null,

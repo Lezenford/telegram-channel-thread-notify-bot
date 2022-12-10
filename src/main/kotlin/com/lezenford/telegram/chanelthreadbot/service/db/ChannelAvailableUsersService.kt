@@ -6,7 +6,6 @@ import com.lezenford.telegram.chanelthreadbot.model.entity.ChannelAvailableUser
 import com.lezenford.telegram.chanelthreadbot.model.repository.ChannelAvailableUserRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
@@ -15,8 +14,7 @@ import javax.persistence.EntityManagerFactory
 @Service
 class ChannelAvailableUsersService(
     override val entityManagerFactory: EntityManagerFactory,
-    private val channelAvailableUserRepository: ChannelAvailableUserRepository,
-    private val cacheManager: CacheManager
+    private val channelAvailableUserRepository: ChannelAvailableUserRepository
 ) : TransactionService() {
     @Cacheable(value = [CacheConfiguration.AVAILABLE_USERS_CACHE], key = "T(java.lang.Long).toString(#channelId)")
     suspend fun listChannelAvailableUsers(channelId: Long): Flow<ChannelAvailableUser> {
