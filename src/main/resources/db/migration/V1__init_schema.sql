@@ -1,7 +1,8 @@
 create table if not exists telegram_user
 (
     id         bigint       not null primary key,
-    username   varchar(255) not null,
+    full_name  varchar(255) not null,
+    username   varchar(255),
     last_topic int,
     active     boolean      not null default true
 );

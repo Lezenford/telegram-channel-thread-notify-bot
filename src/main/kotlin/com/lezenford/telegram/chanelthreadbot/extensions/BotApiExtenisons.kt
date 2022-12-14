@@ -24,11 +24,11 @@ fun <T : Serializable> BotApiMethod<T>.responseClass(): JavaType {
     }
 }
 
-fun User.username() = listOf(firstName, lastName).mapNotNull { it }.joinToString(" ")
+fun User.fullName() = listOf(firstName, lastName).mapNotNull { it }.joinToString(" ")
 
 fun String.escape(): String = this.map { if (it.code in 1..125) "\\$it" else it }.joinToString("")
 
-fun User.toLink(): String = "[${username().escape()}](tg://user?id=${id})"
+fun User.toLink(): String = "[${fullName().escape()}](tg://user?id=${id})"
 
 fun com.lezenford.telegram.chanelthreadbot.model.entity.User.toLink(): String =
-    "[${username.escape()}](tg://user?id=${id})"
+    "[${fullName.escape()}](tg://user?id=${id})"

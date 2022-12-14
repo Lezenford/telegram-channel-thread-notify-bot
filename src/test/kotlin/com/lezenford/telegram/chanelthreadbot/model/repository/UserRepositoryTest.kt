@@ -9,16 +9,16 @@ internal class UserRepositoryTest : BaseTest() {
 
     @Test
     fun `save user with telegram id`() {
-        val user = User(id = 1234, username = "test")
+        val user = User(id = 1234, fullName = "test")
         userRepository.save(user)
         assertThat(userRepository.findAll()).anyMatch { it.id == user.id }
     }
 
     @Test
     fun `modify user and save`() {
-        val user = userRepository.save(User(id = 1234, username = "test"))
-        user.username = "test2"
+        val user = userRepository.save(User(id = 1234, fullName = "test"))
+        user.fullName = "test2"
         userRepository.save(user)
-        assertThat(userRepository.findAll()).anyMatch { it.username == user.username }
+        assertThat(userRepository.findAll()).anyMatch { it.fullName == user.fullName }
     }
 }

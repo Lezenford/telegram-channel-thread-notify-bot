@@ -1,6 +1,6 @@
 package com.lezenford.telegram.chanelthreadbot.telegram.command
 
-import com.lezenford.telegram.chanelthreadbot.extensions.username
+import com.lezenford.telegram.chanelthreadbot.extensions.fullName
 import com.lezenford.telegram.chanelthreadbot.model.entity.User
 import com.lezenford.telegram.chanelthreadbot.service.db.UserService
 import com.lezenford.telegram.chanelthreadbot.telegram.BotSender
@@ -30,7 +30,8 @@ class StartCommand(
                     userService.save(
                         User(
                             id = message.from.id,
-                            username = message.from.username()
+                            fullName = message.from.fullName(),
+                            username = message.from.userName
                         )
                     )
                     botSender.sendMessage(

@@ -1,8 +1,8 @@
 package com.lezenford.telegram.chanelthreadbot.service.db
 
 import com.lezenford.telegram.chanelthreadbot.configuration.CacheConfiguration
+import com.lezenford.telegram.chanelthreadbot.extensions.fullName
 import com.lezenford.telegram.chanelthreadbot.extensions.init
-import com.lezenford.telegram.chanelthreadbot.extensions.username
 import com.lezenford.telegram.chanelthreadbot.model.entity.Channel
 import com.lezenford.telegram.chanelthreadbot.model.entity.User
 import com.lezenford.telegram.chanelthreadbot.model.repository.ChannelRepository
@@ -62,15 +62,16 @@ class ChannelService(
     }
 
     final suspend inline fun findByIdAndUsername(channelId: Long, username: String): User? {
-        return findAllChannelUsers(channelId).firstOrNull { it.username == username }
+        return findAllChannelUsers(channelId).firstOrNull { it.fullName == username }
     }
 
     @CacheEvict(value = [CacheConfiguration.CHANNEL_USERS_CACHE], key = "T(java.lang.Long).toString(#channelId)")
     suspend fun updateUsers(channelId: Long, channelAdmins: List<ChatMember>) {
         val chatUsers = channelAdmins.filterNot { it.user.isBot }.mapNotNull { chatMember ->
             userService.findById(chatMember.user.id)?.also {
-                if (it.username != chatMember.user.username()) {
-                    it.username = chatMember.user.username()
+                if (it.fullName != chatMember.user.fullName() || it.username != chatMember.user.userName) {
+                    it.fullName = chatMember.user.fullName()
+                    it.username = chatMember.user.userName
                     userService.save(it)
                 }
             }
@@ -84,24 +85,6 @@ class ChannelService(
                     log.info("Add user ${chatMember.id} to channel $channelId")
                 }.also { channel.users.addAll(it) }
             }
-        }
-    }
-
-    @CacheEvict(value = [CacheConfiguration.CHANNEL_USERS_CACHE], key = "T(java.lang.Long).toString(#channelId)")
-    suspend fun addUserToChannel(channelId: Long, userId: Long) {
-        userService.findById(userId)?.also { user ->
-            callTransactional {
-                //TODO написать тест, что после закрытия транзакции данные точно фиксируются
-                channelRepository.findByIdOrNull(channelId)?.users?.add(user)
-            }
-        }
-    }
-
-    @CacheEvict(value = [CacheConfiguration.CHANNEL_USERS_CACHE], key = "T(java.lang.Long).toString(#channelId)")
-    suspend fun removeUserFromChannel(channelId: Long, userId: Long) {
-        callTransactional {
-            //TODO написать тест, что после закрытия транзакции данные точно фиксируются
-            channelRepository.findByIdOrNull(channelId)?.users?.removeIf { it.id == userId }
         }
     }
 

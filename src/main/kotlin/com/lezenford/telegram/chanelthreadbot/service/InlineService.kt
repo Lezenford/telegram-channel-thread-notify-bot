@@ -5,6 +5,7 @@ import com.lezenford.telegram.chanelthreadbot.extensions.toLink
 import com.lezenford.telegram.chanelthreadbot.service.db.UserService
 import com.lezenford.telegram.chanelthreadbot.telegram.command.Command
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -23,27 +24,36 @@ class InlineService(
     suspend fun receiveQuery(inlineQuery: InlineQuery): AnswerInlineQuery? {
         return when {
             inlineQuery.query.startsWith("@") && inlineQuery.chatType == "supergroup" -> {
-                val prefix = inlineQuery.query.drop(1).lowercase()
-                userService.findAll()
-                    .filter { user -> user.username.split(" ").any { it.lowercase().startsWith(prefix) } }
-                    .take(6).map {
-                        InlineQueryResultArticle.builder()
-                            .id(it.id.toString())
-                            .inputMessageContent(
-                                InputTextMessageContent.builder()
-                                    .messageText(it.toLink())
-                                    .parseMode(PARSE_MODE)
-                                    .build()
-                            ).title(it.username)
-                            .build()
+                userService.findById(inlineQuery.from.id)?.let {
+                    val prefix = inlineQuery.query.drop(1).lowercase()
+                    userService.findAll()
+                        .filterNot { it.id == inlineQuery.from.id }
+                        .filter { user ->
+                            user.fullName.split(" ").plus(user.username)
+                                .any { it?.lowercase()?.startsWith(prefix) == true }
+                        }
+                        .take(6).map { user ->
+                            InlineQueryResultArticle.builder()
+                                .id(user.id.toString())
+                                .inputMessageContent(
+                                    InputTextMessageContent.builder()
+                                        .messageText("Invite ${user.toLink()}")
+                                        .parseMode(PARSE_MODE)
+                                        .build()
+                                ).title(user.fullName + (user.username?.let { " @$it" } ?: ""))
+                                .build()
 
-                    }.let {
-                        AnswerInlineQuery.builder()
-                            .inlineQueryId(inlineQuery.id)
-                            .results(it.toList())
-                            .build()
-                    }
+                        }.let {
+                            AnswerInlineQuery.builder()
+                                .cacheTime(0)
+                                .inlineQueryId(inlineQuery.id)
+                                .results(it.toList())
+                                .build()
+                        }
+                }
             }
+
+            inlineQuery.query.startsWith(Command.COMMAND_INIT_CHARACTER) -> null //TODO
 
             else -> null
         }

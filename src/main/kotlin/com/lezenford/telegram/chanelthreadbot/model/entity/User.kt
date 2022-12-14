@@ -18,8 +18,11 @@ data class User(
     @Column(name = "id")
     val id: Long,
 
+    @Column(name = "full_name")
+    var fullName: String,
+
     @Column(name = "username")
-    var username: String,
+    var username: String? = null,
 
     @Column(name = "active")
     var active: Boolean = true

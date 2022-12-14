@@ -72,9 +72,6 @@ class UpdateService(
                     update.editedMessage?.isCommand == true || update.editedChannelPost?.isCommand == true ->
                     commandService.executeCommand(update)
 
-                update.message?.viaBot?.id == botId -> {
-                }
-
                 // Receive new message
                 update.hasMessage() && update.message.hasProtectedContent != true -> when {
                     update.message.replyToMessage == null && update.message.forwardFromChat != null && update.message.forwardSignature != null ->
