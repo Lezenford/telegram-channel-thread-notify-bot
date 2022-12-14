@@ -40,7 +40,9 @@ class LongPollingBotReceiver(
                     it.offset(offset)
                 }
             }.build())?.onEach {
-                updateService.receiveUpdate(it)
+                updateService.receiveUpdate(it)?.also { answer ->
+                    sender.sendMessage(answer)
+                }
                 offset = max(offset, it.updateId + 1)
             }
         }

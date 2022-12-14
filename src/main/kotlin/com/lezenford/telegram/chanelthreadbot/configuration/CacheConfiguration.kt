@@ -36,14 +36,21 @@ class CacheConfiguration {
             it.setCaches(
                 listOf(
                     CaffeineCache(
-                        AVAILABLE_USERS_CACHE,
+                        CHANNEL_USERS_CACHE,
                         Caffeine.newBuilder()
                             .expireAfterAccess(1, TimeUnit.DAYS)
                             .ticker(ticker)
                             .build()
                     ),
                     CaffeineCache(
-                        TOPIC_USERS_CACHE,
+                        TELEGRAM_USERS_CACHE,
+                        Caffeine.newBuilder()
+                            .expireAfterAccess(1, TimeUnit.DAYS)
+                            .ticker(ticker)
+                            .build()
+                    ),
+                    CaffeineCache(
+                        CHANNEL_CACHE,
                         Caffeine.newBuilder()
                             .expireAfterAccess(1, TimeUnit.DAYS)
                             .ticker(ticker)
@@ -57,12 +64,40 @@ class CacheConfiguration {
                             .build()
                     ),
                     CaffeineCache(
-                        AVAILABLE_GROUP_CACHE,
+                        TOPIC_CACHE,
                         Caffeine.newBuilder()
                             .expireAfterAccess(1, TimeUnit.DAYS)
                             .ticker(ticker)
                             .build()
                     ),
+                    // CaffeineCache(
+                    //     AVAILABLE_USERS_CACHE,
+                    //     Caffeine.newBuilder()
+                    //         .expireAfterAccess(1, TimeUnit.DAYS)
+                    //         .ticker(ticker)
+                    //         .build()
+                    // ),
+                    // CaffeineCache(
+                    //     TOPIC_USERS_CACHE,
+                    //     Caffeine.newBuilder()
+                    //         .expireAfterAccess(1, TimeUnit.DAYS)
+                    //         .ticker(ticker)
+                    //         .build()
+                    // ),
+                    // CaffeineCache(
+                    //     CHANNEL_GROUP_CACHE,
+                    //     Caffeine.newBuilder()
+                    //         .expireAfterAccess(1, TimeUnit.DAYS)
+                    //         .ticker(ticker)
+                    //         .build()
+                    // ),
+                    // CaffeineCache(
+                    //     AVAILABLE_GROUP_CACHE,
+                    //     Caffeine.newBuilder()
+                    //         .expireAfterAccess(1, TimeUnit.DAYS)
+                    //         .ticker(ticker)
+                    //         .build()
+                    // ),
                     CaffeineCache(
                         USER_HISTORY_CACHE,
                         Caffeine.newBuilder()
@@ -77,24 +112,30 @@ class CacheConfiguration {
                             .ticker(ticker)
                             .build()
                     ),
-                    CaffeineCache(
-                        CHANNEL_TOPIC_CACHE,
-                        Caffeine.newBuilder()
-                            .expireAfterAccess(1, TimeUnit.DAYS)
-                            .ticker(ticker)
-                            .build()
-                    ),
+                    // CaffeineCache(
+                    //     CHANNEL_TOPIC_CACHE,
+                    //     Caffeine.newBuilder()
+                    //         .expireAfterAccess(1, TimeUnit.DAYS)
+                    //         .ticker(ticker)
+                    //         .build()
+                    // ),
                 )
             )
         }
 
     companion object {
-        const val AVAILABLE_USERS_CACHE = "AvailableUsersCache"
-        const val TOPIC_USERS_CACHE = "TopicUsersCache"
+        const val CHANNEL_CACHE = "ChannelCache"
+        const val CHANNEL_USERS_CACHE = "ChannelUsersCache"
         const val CHANNEL_GROUP_CACHE = "ChannelGroupCache"
-        const val AVAILABLE_GROUP_CACHE = "AvailableGroupCache"
-        const val USER_HISTORY_CACHE = "UserHistoryCache"
         const val CHANNEL_BIND_INVITATIONS_CACHE = "ChannelBindInvitationsCache"
-        const val CHANNEL_TOPIC_CACHE = "ChannelTopicCache"
+        const val TOPIC_CACHE = "TopicCache"
+        const val TELEGRAM_USERS_CACHE = "TelegramUsersCache"
+        const val USER_HISTORY_CACHE = "UserHistoryCache"
+        // const val AVAILABLE_USERS_CACHE = "AvailableUsersCache"
+        // const val TOPIC_USERS_CACHE = "TopicUsersCache"
+        // const val CHANNEL_GROUP_CACHE = "ChannelGroupCache"
+        // const val AVAILABLE_GROUP_CACHE = "AvailableGroupCache"
+
+        // const val CHANNEL_TOPIC_CACHE = "ChannelTopicCache"
     }
 }

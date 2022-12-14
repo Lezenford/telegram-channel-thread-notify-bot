@@ -1,6 +1,6 @@
 package com.lezenford.telegram.chanelthreadbot.telegram.command
 
-import com.lezenford.telegram.chanelthreadbot.service.db.ChannelGroupBindService
+import com.lezenford.telegram.chanelthreadbot.service.db.ChannelService
 import com.lezenford.telegram.chanelthreadbot.telegram.BotSender
 import org.springframework.stereotype.Component
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText
@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 
 @Component
 class UnbindCommand(
-    private val channelGroupBindService: ChannelGroupBindService,
+    private val channelService: ChannelService,
     private val botSender: BotSender
 ) : Command() {
     override val command: String = "unbind"
@@ -17,7 +17,7 @@ class UnbindCommand(
     override suspend fun action(update: Update) {
         when {
             update.hasChannelPost() -> {
-                channelGroupBindService.deleteBind(update.channelPost.chatId)
+                channelService.unbind(update.channelPost.chatId)
 
                 botSender.sendMessage(
                     EditMessageText.builder()
