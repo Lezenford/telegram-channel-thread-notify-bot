@@ -23,9 +23,11 @@ class InlineService(
 
     suspend fun receiveQuery(inlineQuery: InlineQuery): AnswerInlineQuery? {
         return when {
-            inlineQuery.query.startsWith("@") && inlineQuery.chatType == "supergroup" -> {
+            inlineQuery.query.startsWith(Command.COMMAND_INIT_CHARACTER) -> null //TODO
+
+            inlineQuery.chatType == "supergroup" -> {
                 userService.findById(inlineQuery.from.id)?.let {
-                    val prefix = inlineQuery.query.drop(1).lowercase()
+                    val prefix = inlineQuery.query.lowercase()
                     userService.findAll()
                         .filterNot { it.id == inlineQuery.from.id }
                         .filter { user ->
@@ -52,8 +54,6 @@ class InlineService(
                         }
                 }
             }
-
-            inlineQuery.query.startsWith(Command.COMMAND_INIT_CHARACTER) -> null //TODO
 
             else -> null
         }
