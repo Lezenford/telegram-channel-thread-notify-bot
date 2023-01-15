@@ -57,7 +57,7 @@ data class History(
         notificationMessageId
     ).mapNotNull { it }
 
-    fun removeExistMessages() {
+    fun cleanExistMessages() {
         topicNotificationMessageId = null
         unreadCountMessageId = null
         ownerNotificationMessageId = null

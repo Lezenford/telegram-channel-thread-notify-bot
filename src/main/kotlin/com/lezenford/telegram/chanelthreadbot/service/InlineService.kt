@@ -2,7 +2,7 @@ package com.lezenford.telegram.chanelthreadbot.service
 
 import com.lezenford.telegram.chanelthreadbot.extensions.PARSE_MODE
 import com.lezenford.telegram.chanelthreadbot.extensions.toLink
-import com.lezenford.telegram.chanelthreadbot.service.db.UserService
+import com.lezenford.telegram.chanelthreadbot.service.db.UserStorageService
 import com.lezenford.telegram.chanelthreadbot.telegram.command.Command
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNot
@@ -17,7 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.inlinequery.result.InlineQuery
 
 @Service
 class InlineService(
-    private val userService: UserService,
+    private val userStorageService: UserStorageService,
     private val commands: List<Command>
 ) {
 
@@ -26,9 +26,9 @@ class InlineService(
             inlineQuery.query.startsWith(Command.COMMAND_INIT_CHARACTER) -> null //TODO
 
             inlineQuery.chatType == "supergroup" -> {
-                userService.findById(inlineQuery.from.id)?.let {
+                userStorageService.findById(inlineQuery.from.id)?.let {
                     val prefix = inlineQuery.query.lowercase()
-                    userService.findAll()
+                    userStorageService.findAll()
                         .filterNot { it.id == inlineQuery.from.id }
                         .filter { user ->
                             user.fullName.split(" ").plus(user.username)

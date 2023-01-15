@@ -13,11 +13,14 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.withContext
+import org.springframework.core.io.FileSystemResource
 import org.springframework.http.MediaType
+import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.toEntity
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod
+import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook
 import org.telegram.telegrambots.meta.api.objects.ApiResponse
 import reactor.util.retry.Retry
 import java.io.Serializable
@@ -42,9 +45,27 @@ class BotSender(
             kotlin.runCatching {
                 rateLimiter.acquire()
                 webClient.post()
-                    .uri(message.method)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(message)
+                    .uri(message.method).let {
+                        when (message) {
+                            is SetWebhook -> {
+                                val multipartBodyBuilder = MultipartBodyBuilder().apply {
+                                    message.certificate?.newMediaFile?.also { file ->
+                                        part(SetWebhook.CERTIFICATE_FIELD, FileSystemResource(file))
+                                    }
+                                    part(SetWebhook.URL_FIELD, message.url)
+                                    part(SetWebhook.SECRETTOKEN_FIELD, message.secretToken)
+                                }
+
+                                it.contentType(MediaType.MULTIPART_FORM_DATA)
+                                it.bodyValue(multipartBodyBuilder.build())
+                            }
+
+                            else -> {
+                                it.contentType(MediaType.APPLICATION_JSON)
+                                it.bodyValue(message)
+                            }
+                        }
+                    }
                     .exchangeToMono { it.toEntity<String>() }
                     .doOnError { log.error("Error invoke telegram api: ${it.message}") }
                     .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(1)))
@@ -63,7 +84,7 @@ class BotSender(
                         }
                     }
             }.onFailure {
-                log.error(it)
+                log.error("send message error", it)
             }.getOrNull()
         }
     }

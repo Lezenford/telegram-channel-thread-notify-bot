@@ -49,7 +49,8 @@ data class TelegramProperties(
 
     data class Webhook(
         val url: String = "",
-        val prefix: String = DEFAULT_PREFIX
+        val prefix: String = DEFAULT_PREFIX,
+        val publicKey: String? = null
     ) {
         companion object {
             const val DEFAULT_PREFIX = "telegram"

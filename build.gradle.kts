@@ -45,12 +45,13 @@ dependencies {
 	implementation("org.telegram:telegrambotsextensions:6.3.0")
 
 	//db
-	implementation("org.flywaydb:flyway-core")
+	implementation("org.flywaydb:flyway-core:6.4.4")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
 
 	//util
 	implementation("com.google.guava:guava:31.1-jre")
+	implementation("org.eclipse.jetty:jetty-reactive-httpclient:1.1.13")
 
 	//test
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

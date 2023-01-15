@@ -7,7 +7,7 @@ import org.springframework.orm.jpa.JpaTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import javax.persistence.EntityManagerFactory
 
-abstract class TransactionService {
+abstract class StorageService {
     protected abstract val entityManagerFactory: EntityManagerFactory
 
     protected suspend inline fun <T> call(crossinline action: () -> T): T {

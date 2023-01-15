@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service
 import javax.persistence.EntityManagerFactory
 
 @Service
-class HistoryService(
+class HistoryStorageService(
     private val cacheManager: CacheManager,
     private val historyRepository: HistoryRepository,
     override val entityManagerFactory: EntityManagerFactory
-) : TransactionService() {
+) : StorageService() {
     @Cacheable(
         value = [CacheConfiguration.USER_HISTORY_CACHE],
         key = "T(java.lang.Long).toString(#userId) + ' ' + T(java.lang.Long).toString(#topicId)"

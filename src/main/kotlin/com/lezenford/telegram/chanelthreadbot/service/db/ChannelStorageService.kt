@@ -19,11 +19,11 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember
 import javax.persistence.EntityManagerFactory
 
 @Service
-class ChannelService(
-    private val userService: UserService,
+class ChannelStorageService(
+    private val userStorageService: UserStorageService,
     private val channelRepository: ChannelRepository,
     override val entityManagerFactory: EntityManagerFactory
-) : TransactionService() {
+) : StorageService() {
 
     final suspend inline fun findByGroupId(groupId: Long): Channel? {
         return findChannelIdByGroupId(groupId)?.let { findById(it) }
@@ -68,11 +68,11 @@ class ChannelService(
     @CacheEvict(value = [CacheConfiguration.CHANNEL_USERS_CACHE], key = "T(java.lang.Long).toString(#channelId)")
     suspend fun updateUsers(channelId: Long, channelAdmins: List<ChatMember>) {
         val chatUsers = channelAdmins.filterNot { it.user.isBot }.mapNotNull { chatMember ->
-            userService.findById(chatMember.user.id)?.also {
+            userStorageService.findById(chatMember.user.id)?.also {
                 if (it.fullName != chatMember.user.fullName() || it.username != chatMember.user.userName) {
                     it.fullName = chatMember.user.fullName()
                     it.username = chatMember.user.userName
-                    userService.save(it)
+                    userStorageService.save(it)
                 }
             }
         }.associateBy { it.id }.toMutableMap()

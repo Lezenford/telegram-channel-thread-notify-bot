@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service
 import javax.persistence.EntityManagerFactory
 
 @Service
-class UserService(
+class UserStorageService(
     private val cacheManager: CacheManager,
     private val userRepository: UserRepository,
     override val entityManagerFactory: EntityManagerFactory
-) : TransactionService() {
+) : StorageService() {
     @Cacheable(
         value = [CacheConfiguration.TELEGRAM_USERS_CACHE],
         key = "T(java.lang.Long).toString(#id)",
@@ -36,9 +36,11 @@ class UserService(
 
     suspend fun save(user: User): User? {
         val userCache = cacheManager.getCache(CacheConfiguration.TELEGRAM_USERS_CACHE)
+        val channelUserCache = cacheManager.getCache(CacheConfiguration.CHANNEL_USERS_CACHE)
         return callTransactional { userRepository.save(user) }?.also { savedUser ->
             userCache?.put(savedUser.id.toString(), savedUser)
             userCache?.evict(ALL_USER_CACHE_KEY)
+            channelUserCache?.clear()
         }
     }
 

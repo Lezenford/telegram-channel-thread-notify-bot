@@ -13,9 +13,8 @@ import javax.persistence.EntityManagerFactory
 class TopicService(
     private val cacheManager: CacheManager,
     private val topicRepository: TopicRepository,
-    private val channelService: ChannelService,
     override val entityManagerFactory: EntityManagerFactory
-) : TransactionService() {
+) : StorageService() {
 
     @Cacheable(
         value = [CacheConfiguration.TOPIC_CACHE],
@@ -36,24 +35,6 @@ class TopicService(
             cache?.put(key, it)
         } ?: run { cache?.evict(key); null }
     }
-
-    // @Cacheable(
-    //     value = [CacheConfiguration.TOPIC_CACHE],
-    //     key = "T(java.lang.Long).toString(#channelId) + ' ' + T(java.lang.Integer).toString(#groupThreadId)",
-    //     unless = "#result == null"
-    // )
-    // suspend fun addTopicToChannel(channelId: Long, channelThreadId: Int, groupThreadId: Int): Topic? {
-    //     //TODO проверить unless
-    //     return channelService.findById(channelId)?.let { channel ->
-    //         Topic(
-    //             channel = channel,
-    //             channelThreadId = channelThreadId,
-    //             groupThreadId = groupThreadId
-    //         ).let {
-    //             callTransactional { topicRepository.save(it) }
-    //         }
-    //     }
-    // }
 
     @CacheEvict(
         value = [CacheConfiguration.TOPIC_CACHE],

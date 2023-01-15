@@ -1,34 +1,19 @@
 package com.lezenford.telegram.chanelthreadbot.extensions
 
-import com.fasterxml.jackson.databind.JavaType
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod
-import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodBoolean
-import org.telegram.telegrambots.meta.api.methods.botapimethods.BotApiMethodMessage
-import org.telegram.telegrambots.meta.api.methods.updates.GetUpdates
-import org.telegram.telegrambots.meta.api.objects.Message
-import org.telegram.telegrambots.meta.api.objects.Update
-import org.telegram.telegrambots.meta.api.objects.User
-import java.io.Serializable
-
 const val PARSE_MODE = "MarkdownV2"
 
-private val typeFactory = jacksonObjectMapper().typeFactory
+const val USER_ID_LINK_PREFIX = "tg://user?id="
+const val USER_LOGIN_LINK_PREFIX = "tg://resolve?domain="
 
-fun <T : Serializable> BotApiMethod<T>.responseClass(): JavaType {
-    return when (this) {
-        is GetUpdates -> typeFactory.constructParametricType(List::class.java, Update::class.java)
-        is BotApiMethodMessage -> typeFactory.constructType(Message::class.java)
-        is BotApiMethodBoolean -> typeFactory.constructType(Boolean::class.java)
-        else -> throw IllegalArgumentException("Unsupported class ${this::class}")
-    }
-}
+fun String.escape(): String = this.map { if (it.code in 1..126) "\\$it" else it }.joinToString("")
 
-fun User.fullName() = listOf(firstName, lastName).mapNotNull { it }.joinToString(" ")
+fun org.telegram.telegrambots.meta.api.objects.User.fullName() =
+    listOf(firstName, lastName).mapNotNull { it }.joinToString(" ")
 
-fun String.escape(): String = this.map { if (it.code in 1..125) "\\$it" else it }.joinToString("")
-
-fun User.toLink(): String = "[${fullName().escape()}](tg://user?id=${id})"
+fun org.telegram.telegrambots.meta.api.objects.User.toLink(): String =
+    userName?.let { "[${fullName().escape()}]($USER_LOGIN_LINK_PREFIX$it)" }
+        ?: "[${fullName().escape()}]($USER_ID_LINK_PREFIX$id)"
 
 fun com.lezenford.telegram.chanelthreadbot.model.entity.User.toLink(): String =
-    "[${fullName.escape()}](tg://user?id=${id})"
+    username?.let { "[${fullName.escape()}]($USER_LOGIN_LINK_PREFIX$it)" }
+        ?: "[${fullName.escape()}]($USER_ID_LINK_PREFIX$id)"
